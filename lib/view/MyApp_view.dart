@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:umporvez/view/Motivacao_page.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -144,7 +145,8 @@ class HomePage extends StatelessWidget {
                   color: Colors.grey,
                 ),
                 onTap: () {
-                  print('Direcionar');
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => MotivacaoPage()));
                 },
               ),
               ListTile(
