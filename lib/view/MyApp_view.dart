@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:umporvez/view/Motivacao_page.dart';
 
 class HomePage extends StatelessWidget {
+  double _progress = 0.0;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -67,7 +68,10 @@ class HomePage extends StatelessWidget {
               child: Container(
                 alignment: Alignment.bottomCenter,
                 decoration: BoxDecoration(
-                  color: Colors.black87,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(40),
+                      topRight: Radius.circular(40)),
+                  color: Color.fromARGB(221, 127, 235, 91),
                 ),
                 height: 100,
                 width: double.infinity,
@@ -88,19 +92,56 @@ class HomePage extends StatelessWidget {
               ),
             ),
             Positioned(
-                top: 75,
+              top: 75,
+              left: 10,
+              right: 10,
+              child: Container(
+                color: Colors.transparent,
+                alignment: Alignment.center,
+                //adicionar um if ternario, se dia for diferente de 0/1 colocar S
+                child: Text(
+                  'Dias',
+                  style:
+                      GoogleFonts.robotoMono(color: Colors.white, fontSize: 50),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 100,
+              left: 10,
+              right: 10,
+              child: Column(
+                children: <Widget>[
+                  LinearProgressIndicator(
+                    backgroundColor: Colors.grey,
+                    value: _progress,
+                    color: Colors.blue,
+                    minHeight: 10,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'Progresso da meta: ${(100 * _progress).toStringAsFixed(2)}%',
+                    style: GoogleFonts.robotoMono(
+                        color: Colors.white, fontSize: 20),
+                  )
+                ],
+              ),
+            ),
+            Positioned(
+                bottom: 50,
                 left: 10,
                 right: 10,
-                child: Container(
-                  color: Colors.transparent,
-                  alignment: Alignment.center,
-                  //adicionar um if ternario, se dia for diferente de 0/1 colocar S
-                  child: Text(
-                    'Dias',
-                    style: GoogleFonts.robotoMono(
-                        color: Colors.white, fontSize: 50),
-                  ),
-                )),
+                child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent),
+                    onPressed: () {},
+                    child: Text(
+                      "Nova meta!!!!",
+                      style: GoogleFonts.robotoMono(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    )))
           ],
         ),
         //Drawer (lateral menu)
