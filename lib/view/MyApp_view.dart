@@ -6,6 +6,8 @@ class HomePage extends StatelessWidget {
   double _progress = 0.0;
   @override
   Widget build(BuildContext context) {
+    
+    TextEditingController _controller = TextEditingController();
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -23,7 +25,7 @@ class HomePage extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.blue, Colors.orange, Colors.deepOrange],
+                    colors: [Colors.blue, Colors.red, Colors.orangeAccent],
                     stops: [0.3, 0.7, 0.8],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -71,7 +73,7 @@ class HomePage extends StatelessWidget {
                   borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(40),
                       topRight: Radius.circular(40)),
-                  color: Color.fromARGB(221, 127, 235, 91),
+                  color: Color.fromARGB(221, 23, 69, 80),
                 ),
                 height: 100,
                 width: double.infinity,
@@ -130,18 +132,57 @@ class HomePage extends StatelessWidget {
               ),
             ),
             Positioned(
-                bottom: 50,
-                left: 10,
-                right: 10,
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent),
-                    onPressed: () {},
-                    child: Text(
-                      "Nova meta!!!!",
-                      style: GoogleFonts.robotoMono(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    )))
+              bottom: 50,
+              left: 10,
+              right: 10,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent),
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  content: TextField(
+                                    controller: _controller,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                        hintText: 'Quantos dias?'),
+                                  ),
+                                  actions: <Widget>[
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          String days = _controller.text;
+                                          Navigator.pop(context);
+                                          print(days);
+                                        },
+                                        child: Text('Salvar'))
+                                  ],
+                                );
+                              });
+                        },
+                        child: Center(
+                          child: Text(
+                            "Nova meta!",
+                            style: GoogleFonts.robotoMono(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        )),
+                    ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent),
+                        onPressed: () {},
+                        child: Text(
+                          "Redefinir",
+                          style: GoogleFonts.robotoMono(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ))
+                  ]),
+            )
           ],
         ),
         //Drawer (lateral menu)
