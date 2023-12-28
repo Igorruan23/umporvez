@@ -1,13 +1,37 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:umporvez/view/Motivacao_page.dart';
 
-class HomePage extends StatelessWidget {
-  double _progress = 0.0;
+class HomePage extends StatefulWidget {
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  double _progress = 0.0;
+  late TextEditingController _dayController;
+  late TextEditingController _textController;
+  String selectedOption = '';
+
+  @override
+  void dispose() {
+    _dayController.dispose();
+    _textController.dispose();
+    super.dispose();
+  }
+
+  //lista com as opções de escolha
+
+  @override
+  void initState() {
+    super.initState();
+
+    _dayController = TextEditingController();
+    _textController = TextEditingController();
+  }
+
   Widget build(BuildContext context) {
-    
-    TextEditingController _controller = TextEditingController();
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -146,18 +170,30 @@ class HomePage extends StatelessWidget {
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  content: TextField(
-                                    controller: _controller,
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                        hintText: 'Quantos dias?'),
-                                  ),
+                                  content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextField(
+                                          controller: _dayController,
+                                          keyboardType: TextInputType.number,
+                                          decoration: InputDecoration(
+                                              hintText: 'Quantos dias?'),
+                                        ),
+                                        TextField(
+                                            controller: _textController,
+                                            keyboardType: TextInputType.text,
+                                            decoration: InputDecoration(
+                                                hintText:
+                                                    'Ficar sem / ofensiva de dias'))
+                                      ]),
                                   actions: <Widget>[
                                     ElevatedButton(
                                         onPressed: () {
-                                          String days = _controller.text;
+                                          String text = _textController.text;
+                                          String days = _dayController.text;
                                           Navigator.pop(context);
                                           print(days);
+                                          print(text);
                                         },
                                         child: Text('Salvar'))
                                   ],
@@ -192,17 +228,29 @@ class HomePage extends StatelessWidget {
             padding: EdgeInsets.zero,
             children: <Widget>[
               DrawerHeader(
-                decoration: BoxDecoration(color: Colors.blue),
+                decoration:
+                    BoxDecoration(color: Color.fromARGB(255, 36, 79, 114)),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Text(
-                      "Vicio",
-                      style: GoogleFonts.robotoMono(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 25),
+                    TextButton(
+                      onPressed: () {
+                        _showOptionsDialog();
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(45))),
+                        child: Text(
+                          "Meta/Vicio",
+                          style: GoogleFonts.robotoMono(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 25),
+                        ),
+                      ),
                     ),
                     Text(
                       "Dias",
@@ -267,6 +315,56 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  //função para exibir opções de escolhas na tela lateral
+  Future<void> _showOptionsDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Escolha uma opção'),
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  RadioListTile<String>(
+                    title: const Text('Ficar sem por dias'),
+                    value: 'Ficar sem por dias',
+                    groupValue: selectedOption,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedOption = value!;
+                      });
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: const Text('Fazer por dias'),
+                    value: 'Fazer por dias',
+                    groupValue: selectedOption,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedOption = value!;
+                      });
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                // Aqui você pode utilizar a opção selecionada (selectedOption)
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
