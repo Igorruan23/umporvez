@@ -9,7 +9,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  //data atual
+  DateTime currentDate = DateTime.now();
+  //barra de progresso
   double _progress = 0.0;
+  //controllers de escolhas e inputs
   late TextEditingController _dayController;
   late TextEditingController _textController;
   String selectedOption = '';
@@ -133,6 +137,30 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Positioned(
+              top: 150,
+              left: 10,
+              right: 10,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                   
+                    Text(
+                      selectedOption,
+                      style: GoogleFonts.robotoMono(
+                          color: Colors.white, fontSize: 30),
+                    ),
+                    Text(
+                      //acesso a meta/vicio
+                      _textController.text,
+                      style: GoogleFonts.robotoMono(
+                          color: Colors.white, fontSize: 30),
+                    ),
+                    SizedBox(
+                      width: 100,
+                    )
+                  ]),
+            ),
+            Positioned(
               bottom: 100,
               left: 10,
               right: 10,
@@ -189,11 +217,8 @@ class _HomePageState extends State<HomePage> {
                                   actions: <Widget>[
                                     ElevatedButton(
                                         onPressed: () {
-                                          String text = _textController.text;
-                                          String days = _dayController.text;
                                           Navigator.pop(context);
-                                          print(days);
-                                          print(text);
+                                          setState(() {});
                                         },
                                         child: Text('Salvar'))
                                   ],
@@ -332,7 +357,7 @@ class _HomePageState extends State<HomePage> {
                 children: <Widget>[
                   RadioListTile<String>(
                     title: const Text('Ficar sem por dias'),
-                    value: 'Ficar sem por dias',
+                    value: 'Sem',
                     groupValue: selectedOption,
                     onChanged: (value) {
                       setState(() {
@@ -342,7 +367,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   RadioListTile<String>(
                     title: const Text('Fazer por dias'),
-                    value: 'Fazer por dias',
+                    value: 'Fazendo',
                     groupValue: selectedOption,
                     onChanged: (value) {
                       setState(() {
@@ -358,7 +383,8 @@ class _HomePageState extends State<HomePage> {
             TextButton(
               child: Text('OK'),
               onPressed: () {
-                // Aqui você pode utilizar a opção selecionada (selectedOption)
+                //setstate para atualizar a homescreen
+                setState(() {});
                 Navigator.of(context).pop();
               },
             ),
