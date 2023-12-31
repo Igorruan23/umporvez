@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:umporvez/controller/Progress_Controller.dart';
 import 'package:umporvez/view/Motivacao_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -9,8 +10,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  //data atual
-  DateTime currentDate = DateTime.now();
+  ProgressController _controllerProgress =
+      ProgressController(initialProgress: 0.0);
+
   //barra de progresso
   double _progress = 0.0;
   //controllers de escolhas e inputs
@@ -143,7 +145,6 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                   
                     Text(
                       selectedOption,
                       style: GoogleFonts.robotoMono(
@@ -217,8 +218,19 @@ class _HomePageState extends State<HomePage> {
                                   actions: <Widget>[
                                     ElevatedButton(
                                         onPressed: () {
+                                          //data atual do inicio da meta
+                                          DateTime currentDate = DateTime.now();
+                                          int goalDays = int.tryParse(
+                                                  _dayController.text) ??
+                                              0;
+                                          // Usar o valor obtido em goalDays para calcular o progresso no seu ProgressController
+                                          double progress = _controllerProgress
+                                              .calculateProgress(
+                                                  currentDate, goalDays);
                                           Navigator.pop(context);
-                                          setState(() {});
+                                          setState(() {
+                                            _progress = progress;
+                                          });
                                         },
                                         child: Text('Salvar'))
                                   ],
