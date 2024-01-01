@@ -1,4 +1,4 @@
-import 'package:umporvez/Model/versiculos_model.dart';
+import 'package:umporvez/Model/motivation_model.dart';
 
 
 class VersiculoController {

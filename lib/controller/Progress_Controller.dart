@@ -1,4 +1,4 @@
-import 'package:umporvez/Model/progresso_model.dart';
+import 'package:umporvez/Model/progress_model.dart';
 
 class ProgressController {
   late ProgressModel _progressModel;
@@ -7,8 +7,7 @@ class ProgressController {
     _progressModel = ProgressModel(progress: initialProgress);
   }
 
-  double calculateProgress(
-     DateTime currentDate, int goalDays) {
+  double calculateProgress(DateTime currentDate, int goalDays) {
     return _progressModel.calculateProgress(currentDate, goalDays);
   }
 }

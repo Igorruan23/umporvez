@@ -17,6 +17,10 @@ class VersiculosClass {
     "O Senhor é o meu pastor; de nada terei falta. - Salmo 23:1",
     "Não se amoldem ao padrão deste mundo, mas transformem-se pela renovação da sua mente. - Romanos 12:2",
     "Esforçai-vos, e Ele fortalecerá o vosso coração, vós todos que esperais no Senhor. - Salmo 31:24",
+    "Esforça-te, e tem bom ânimo; não temas, nem te espantes, porque o Senhor, teu Deus, é contigo, por onde quer que andares. - Josué 1:9"
+    "Porque para Deus nada será impossível.- Lucas 1:37",
+    "Deus é o nosso refúgio e fortaleza, socorro bem presente na angústia. - Salmo 46:1",
+    "Sujeitem-se, pois, a Deus, resistam ao Diabo, e ele fugirá de vocês. - Tiago 4:7",
   ];
   String getVersiculoAleatorio() {
     final random = Random();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:umporvez/controller/VersiculoController.dart';
+import 'package:umporvez/controller/motivationController.dart';
 import 'package:umporvez/controller/Image_Controller.dart';
 
 class MotivacaoPage extends StatefulWidget {
@@ -22,7 +22,6 @@ class _MotivacaoPageState extends State<MotivacaoPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     versiculoAleatorio = versiculoController.getVersiculoAleatorio();
     // Obtém o caminho da imagem aleatória
@@ -36,7 +35,7 @@ class _MotivacaoPageState extends State<MotivacaoPage> {
             title: Text(
               "Um dia de cada vez!",
               style: GoogleFonts.robotoMono(
-                  color: Color.fromARGB(255, 0, 0, 0),
+                  color: const Color.fromARGB(255, 0, 0, 0),
                   fontWeight: FontWeight.w900,
                   fontSize: 25),
             ),
@@ -65,7 +64,7 @@ class _MotivacaoPageState extends State<MotivacaoPage> {
               child: Text(
                 versiculoAleatorio,
                 style: GoogleFonts.robotoMono(
-                    color: Color.fromARGB(255, 0, 0, 0),
+                    color: const Color.fromARGB(255, 0, 0, 0),
                     fontWeight: FontWeight.w900,
                     fontSize: 25),
                 textAlign: TextAlign.center,
