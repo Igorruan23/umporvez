@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:umporvez/view/MyApp_view.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        appBarTheme: AppBarTheme(color: Colors.blue),
+        appBarTheme: const AppBarTheme(color: Colors.blue),
       ),
       debugShowCheckedModeBanner: false,
       home: HomePage(),
