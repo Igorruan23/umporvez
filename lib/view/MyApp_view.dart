@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:umporvez/controller/Progress_Controller.dart';
+import 'package:umporvez/controller/date_Progress_Controller.dart';
 import 'package:umporvez/view/Motivation_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -10,9 +10,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // ignore: prefer_final_fields
-  ProgressController _controllerProgress =
+  //variavel de controle da data
+  late DateProgressController controllerDate;
+  late DateTime selectedDate;
+  late int daysPassed = 0;
+  // controle do progresso
+  final ProgressController _controllerProgress =
       ProgressController(initialProgress: 0.0);
+//
 
   //barra de progresso
   double _progress = 0.0;
@@ -33,7 +38,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    //carregar a data
+    controllerDate = DateProgressController();
 
+    //controle de inputs
     _dayController = TextEditingController();
     _textController = TextEditingController();
   }
@@ -118,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.transparent,
                 alignment: Alignment.center,
                 child: Text(
-                  '00',
+                  daysPassed.toString(),
                   style:
                       GoogleFonts.robotoMono(color: Colors.white, fontSize: 50),
                 ),
@@ -220,6 +228,11 @@ class _HomePageState extends State<HomePage> {
                                                   currentDate, goalDays);
                                           Navigator.pop(context);
                                           setState(() {
+                                            selectedDate = DateTime.now();
+                                            controllerDate
+                                                .startProgress(selectedDate);
+                                            daysPassed = controllerDate
+                                                .calculateDaysPassed();
                                             _progress = progress;
                                           });
                                         },
