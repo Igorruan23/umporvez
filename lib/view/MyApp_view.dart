@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:umporvez/Model/dbModel.dart';
 import 'package:umporvez/controller/Progress_Controller.dart';
 import 'package:umporvez/controller/date_Progress_Controller.dart';
+import 'package:umporvez/database/db.dart';
 import 'package:umporvez/view/Motivation_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,7 +26,6 @@ class _HomePageState extends State<HomePage> {
   //controllers de escolhas e inputs
   late TextEditingController _dayController;
   late TextEditingController _textController;
-  String selectedOption = '';
 
   @override
   void dispose() {
@@ -38,12 +39,43 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _initializeDB();
     //carregar a data
     controllerDate = DateProgressController();
-
     //controle de inputs
     _dayController = TextEditingController();
     _textController = TextEditingController();
+  }
+
+//criada para o banco de dados não inicializar com app e quebrar
+  Future<void> _initializeDB() async {
+    await DB.open();
+    await _loadProgressData();
+  }
+
+  //carregar dados salvos
+  Future<void> _loadProgressData() async {
+    List<DBModel> registros = await DB.getallProgress();
+    if (registros.isNotEmpty) {
+      DBModel ultimoRegistro = registros.last;
+
+      setState(() {
+        _textController.text = ultimoRegistro.metaDescription;
+        DateTime savedStartDate = DateTime.parse(ultimoRegistro.metaStartDate);
+        _dayController.text = ultimoRegistro.goalDays.toString();
+        //calculando dias passados com base na data salva e na data atual
+        DateTime currentDate = DateTime.now();
+        Duration difference = currentDate.difference(savedStartDate);
+        daysPassed = difference.inDays;
+
+        //atualizando o progresso
+        double progress = _controllerProgress.calculateProgress(
+            savedStartDate, ultimoRegistro.goalDays);
+        _progress = progress;
+        print(_progress);
+        print(ultimoRegistro.goalDays);
+      });
+    }
   }
 
   Widget build(BuildContext context) {
@@ -216,12 +248,26 @@ class _HomePageState extends State<HomePage> {
                                       ]),
                                   actions: <Widget>[
                                     ElevatedButton(
-                                        onPressed: () {
+                                        onPressed: () async {
                                           //data atual do inicio da meta
                                           DateTime currentDate = DateTime.now();
+                                          String metaDescription =
+                                              _textController.text;
+                                          //implementar logica da data
+                                          String metaStartDate = currentDate
+                                              .toString(); // Ou formate conforme desejado
                                           int goalDays = int.tryParse(
                                                   _dayController.text) ??
                                               0;
+
+                                          // Criar um objeto DBModel com os dados
+                                          DBModel novoRegistro = DBModel(
+                                            metaDescription: metaDescription,
+                                            metaStartDate: metaStartDate,
+                                            goalDays: goalDays,
+                                          );
+                                          await DB.insert(novoRegistro);
+
                                           // Usar o valor obtido em goalDays para calcular o progresso no seu ProgressController
                                           double progress = _controllerProgress
                                               .calculateProgress(
@@ -273,36 +319,41 @@ class _HomePageState extends State<HomePage> {
             children: <Widget>[
               DrawerHeader(
                 decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 36, 79, 114)),
+                    color: Color.fromARGB(255, 22, 89, 143)),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        _showOptionsDialog();
-                      },
-                      child: Container(
-                        decoration: const BoxDecoration(
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Text(
+                        daysPassed.toString(),
+                        style: GoogleFonts.robotoMono(
                             color: Colors.white,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(45))),
-                        child: Text(
-                          "Meta/Vicio",
-                          style: GoogleFonts.robotoMono(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 25),
-                        ),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 25),
                       ),
-                    ),
+                      Text(
+                        "/",
+                        style: GoogleFonts.robotoMono(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 25),
+                      ),
+                      Text(
+                        _dayController.text,
+                        style: GoogleFonts.robotoMono(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 25),
+                      ),
+                    ]),
                     Text(
-                      selectedOption,
+                      "VOCE CONSEGUE!!!",
                       style: GoogleFonts.robotoMono(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
                           fontSize: 20),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -361,57 +412,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-    );
-  }
-
-  //função para exibir opções de escolhas na tela lateral
-  Future<void> _showOptionsDialog() async {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Escolha uma opção'),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  RadioListTile<String>(
-                    title: const Text('Ficar sem por dias'),
-                    value: 'Ficar sem por dias',
-                    groupValue: selectedOption,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedOption = value!;
-                      });
-                    },
-                  ),
-                  RadioListTile<String>(
-                    title: const Text('Fazer por dias'),
-                    value: 'Fazer por dias',
-                    groupValue: selectedOption,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedOption = value!;
-                      });
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                //setstate para atualizar a homescreen
-                setState(() {});
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 }
