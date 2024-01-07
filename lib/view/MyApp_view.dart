@@ -53,6 +53,28 @@ class _HomePageState extends State<HomePage> {
     await _loadProgressData();
   }
 
+  Future<void> deleteDB() async {
+    List<DBModel> registros = await DB.getallProgress();
+    if (registros.isNotEmpty) {
+      DBModel ultimoRegistro = registros.last;
+      int? getLastID = ultimoRegistro.id;
+      if (getLastID != null) {
+        print('ID do último registro: $getLastID');
+        await DB.delete(getLastID);
+        print('Registro excluído');
+        await _initializeDB();
+        await _loadProgressData().then((_) {
+          setState(() {
+            _dayController = TextEditingController();
+            _textController = TextEditingController();
+            daysPassed = 0;
+            _progress = 0.0;
+          });
+        });
+      }
+    }
+  }
+
   //carregar dados salvos
   Future<void> _loadProgressData() async {
     List<DBModel> registros = await DB.getallProgress();
@@ -72,8 +94,6 @@ class _HomePageState extends State<HomePage> {
         double progress = _controllerProgress.calculateProgress(
             savedStartDate, ultimoRegistro.goalDays);
         _progress = progress;
-        print(_progress);
-        print(ultimoRegistro.goalDays);
       });
     }
   }
@@ -298,9 +318,30 @@ class _HomePageState extends State<HomePage> {
                     ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent),
-                        onPressed: () {
-                          print(
-                              "Implementar logica de redefinir o tempo se estiver vazio");
+                        onPressed: () async {
+                          //await deleteDB();
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Confirmação'),
+                                  content: const Text(
+                                      "Tem certeza que deseja excluir essa meta?"),
+                                  actions: <Widget>[
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Cancelar')),
+                                    TextButton(
+                                        onPressed: () async {
+                                          await deleteDB();
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text("Confirmar"))
+                                  ],
+                                );
+                              });
                         },
                         child: Text(
                           "Redefinir",

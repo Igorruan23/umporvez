@@ -31,4 +31,8 @@ class DB {
       return DBModel.fromMap(maps[i]);
     });
   }
+
+  static Future<int> delete(int id) async {
+    return await _database.delete('PROGRESS', where: 'id = ?', whereArgs: [id]);
+  }
 }
