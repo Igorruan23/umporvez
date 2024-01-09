@@ -288,7 +288,8 @@ class _HomePageState extends State<HomePage> {
                                             }
                                           }
                                           //data atual do inicio da meta
-                                          DateTime currentDate = DateTime.now();
+                                          DateTime currentDate =
+                                              DateTime.now().toLocal();
                                           String metaDescription =
                                               _textController.text;
                                           //implementar logica da data
@@ -312,7 +313,8 @@ class _HomePageState extends State<HomePage> {
                                                   currentDate, goalDays);
                                           Navigator.pop(context);
                                           setState(() {
-                                            selectedDate = DateTime.now();
+                                            selectedDate =
+                                                DateTime.now().toLocal();
                                             controllerDate
                                                 .startProgress(selectedDate);
                                             daysPassed = controllerDate

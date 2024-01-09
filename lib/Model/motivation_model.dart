@@ -1,6 +1,6 @@
 import 'dart:math';
 
-class VersiculosClass {
+class MotivacaoClass {
   List<String> Versiculos = [
     "Não se deixem vencer pelo mal, mas vençam o mal com o bem. - Romanos 12:21",
     "Tudo posso naquele que me fortalece. - Filipenses 4:13",
@@ -18,11 +18,21 @@ class VersiculosClass {
     "Não se amoldem ao padrão deste mundo, mas transformem-se pela renovação da sua mente. - Romanos 12:2",
     "Esforçai-vos, e Ele fortalecerá o vosso coração, vós todos que esperais no Senhor. - Salmo 31:24",
     "Esforça-te, e tem bom ânimo; não temas, nem te espantes, porque o Senhor, teu Deus, é contigo, por onde quer que andares. - Josué 1:9"
-    "Porque para Deus nada será impossível.- Lucas 1:37",
+        "Porque para Deus nada será impossível.- Lucas 1:37",
     "Deus é o nosso refúgio e fortaleza, socorro bem presente na angústia. - Salmo 46:1",
     "Sujeitem-se, pois, a Deus, resistam ao Diabo, e ele fugirá de vocês. - Tiago 4:7",
+    "A fé em Deus é a âncora que nos mantém firmes durante as tempestades da vida.",
+    "Quando a vida coloca obstáculos no seu caminho, confie em Deus para ser sua força para superá-los.",
+    "A cada novo amanhecer, recebemos uma nova chance pela graça de Deus para alcançar nossos objetivos.",
+    "Deus nunca disse que a jornada seria fácil, mas Ele prometeu estar conosco a cada passo do caminho.",
+    "Em Deus, encontramos a coragem para enfrentar nossos medos e a determinação para seguir adiante.",
+    "A esperança em Deus é a luz que brilha mesmo nas mais escuras situações.",
+    "Confie no tempo de Deus; Ele sempre está trabalhando por trás das cenas para realizar o melhor para você.",
+    "A oração é a chave que abre as portas para novas oportunidades e possibilidades.",
+    "A fé é acreditar naquilo que ainda não vemos, mas sabemos que Deus está no controle.",
+    "A vida é uma jornada de fé, onde cada passo é guiado pela vontade de Deus.",
   ];
-  String getVersiculoAleatorio() {
+  String getMotivacaoAleatoria() {
     final random = Random();
     final index = random.nextInt(Versiculos.length);
     return Versiculos[index];
