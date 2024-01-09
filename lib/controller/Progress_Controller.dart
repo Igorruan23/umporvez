@@ -10,4 +10,6 @@ class ProgressController {
   double calculateProgress(DateTime currentDate, int goalDays) {
     return _progressModel.calculateProgress(currentDate, goalDays);
   }
+
+ 
 }

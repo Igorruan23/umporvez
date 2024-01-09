@@ -1,7 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:umporvez/Model/dbModel.dart';
 import 'package:umporvez/controller/Progress_Controller.dart';
+import 'package:umporvez/controller/date_Progress_Controller.dart';
+import 'package:umporvez/database/db.dart';
 import 'package:umporvez/view/Motivation_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -10,16 +12,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // ignore: prefer_final_fields
-  ProgressController _controllerProgress =
+  //variavel de controle da data
+  late DateProgressController controllerDate;
+  late DateTime selectedDate;
+  late int daysPassed = 0;
+  // controle do progresso
+  final ProgressController _controllerProgress =
       ProgressController(initialProgress: 0.0);
+//
 
   //barra de progresso
   double _progress = 0.0;
   //controllers de escolhas e inputs
   late TextEditingController _dayController;
   late TextEditingController _textController;
-  String selectedOption = '';
 
   @override
   void dispose() {
@@ -33,9 +39,63 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-
+    _initializeDB();
+    //carregar a data
+    controllerDate = DateProgressController();
+    //controle de inputs
     _dayController = TextEditingController();
     _textController = TextEditingController();
+  }
+
+//criada para o banco de dados não inicializar com app e quebrar
+  Future<void> _initializeDB() async {
+    await DB.open();
+    await _loadProgressData();
+  }
+
+  Future<void> deleteDB() async {
+    List<DBModel> registros = await DB.getallProgress();
+    if (registros.isNotEmpty) {
+      DBModel ultimoRegistro = registros.last;
+      int? getLastID = ultimoRegistro.id;
+      if (getLastID != null) {
+        print('ID do último registro: $getLastID');
+        await DB.delete(getLastID);
+        print('Registro excluído');
+        await _initializeDB();
+        await _loadProgressData().then((_) {
+          setState(() {
+            _dayController = TextEditingController();
+            _textController = TextEditingController();
+            daysPassed = 0;
+            _progress = 0.0;
+          });
+        });
+      }
+    }
+  }
+
+  //carregar dados salvos
+  Future<void> _loadProgressData() async {
+    List<DBModel> registros = await DB.getallProgress();
+    if (registros.isNotEmpty) {
+      DBModel ultimoRegistro = registros.last;
+
+      setState(() {
+        _textController.text = ultimoRegistro.metaDescription;
+        DateTime savedStartDate = DateTime.parse(ultimoRegistro.metaStartDate);
+        _dayController.text = ultimoRegistro.goalDays.toString();
+        //calculando dias passados com base na data salva e na data atual
+        DateTime currentDate = DateTime.now();
+        Duration difference = currentDate.difference(savedStartDate);
+        daysPassed = difference.inDays;
+
+        //atualizando o progresso
+        double progress = _controllerProgress.calculateProgress(
+            savedStartDate, ultimoRegistro.goalDays);
+        _progress = progress;
+      });
+    }
   }
 
   Widget build(BuildContext context) {
@@ -118,7 +178,7 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.transparent,
                 alignment: Alignment.center,
                 child: Text(
-                  '00',
+                  daysPassed.toString(),
                   style:
                       GoogleFonts.robotoMono(color: Colors.white, fontSize: 50),
                 ),
@@ -208,18 +268,57 @@ class _HomePageState extends State<HomePage> {
                                       ]),
                                   actions: <Widget>[
                                     ElevatedButton(
-                                        onPressed: () {
+                                        onPressed: () async {
+                                          String currentText =
+                                              _textController.text;
+                                          if (currentText.isNotEmpty) {
+                                            String previousText = currentText;
+                                            _textController.clear();
+                                            _textController.text = previousText;
+                                            List<DBModel> registros =
+                                                await DB.getallProgress();
+                                            if (registros.isNotEmpty) {
+                                              DBModel ultimoRegistro =
+                                                  registros.last;
+                                              // Atualizar o modelo com o novo texto
+                                              ultimoRegistro.metaDescription =
+                                                  previousText;
+                                              // Chamar a função de atualização no banco de dados
+                                              await DB.update(ultimoRegistro);
+                                            }
+                                          }
                                           //data atual do inicio da meta
-                                          DateTime currentDate = DateTime.now();
+                                          DateTime currentDate =
+                                              DateTime.now().toLocal();
+                                          String metaDescription =
+                                              _textController.text;
+                                          //implementar logica da data
+                                          String metaStartDate = currentDate
+                                              .toString(); // Ou formate conforme desejado
                                           int goalDays = int.tryParse(
                                                   _dayController.text) ??
                                               0;
+
+                                          // Criar um objeto DBModel com os dados
+                                          DBModel novoRegistro = DBModel(
+                                            metaDescription: metaDescription,
+                                            metaStartDate: metaStartDate,
+                                            goalDays: goalDays,
+                                          );
+                                          await DB.insert(novoRegistro);
+
                                           // Usar o valor obtido em goalDays para calcular o progresso no seu ProgressController
                                           double progress = _controllerProgress
                                               .calculateProgress(
                                                   currentDate, goalDays);
                                           Navigator.pop(context);
                                           setState(() {
+                                            selectedDate =
+                                                DateTime.now().toLocal();
+                                            controllerDate
+                                                .startProgress(selectedDate);
+                                            daysPassed = controllerDate
+                                                .calculateDaysPassed();
                                             _progress = progress;
                                           });
                                         },
@@ -239,9 +338,30 @@ class _HomePageState extends State<HomePage> {
                     ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent),
-                        onPressed: () {
-                          print(
-                              "Implementar logica de redefinir o tempo se estiver vazio");
+                        onPressed: () async {
+                          //await deleteDB();
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text('Confirmação'),
+                                  content: const Text(
+                                      "Tem certeza que deseja excluir essa meta?"),
+                                  actions: <Widget>[
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Cancelar')),
+                                    TextButton(
+                                        onPressed: () async {
+                                          await deleteDB();
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text("Confirmar"))
+                                  ],
+                                );
+                              });
                         },
                         child: Text(
                           "Redefinir",
@@ -260,36 +380,41 @@ class _HomePageState extends State<HomePage> {
             children: <Widget>[
               DrawerHeader(
                 decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 36, 79, 114)),
+                    color: Color.fromARGB(255, 22, 89, 143)),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        _showOptionsDialog();
-                      },
-                      child: Container(
-                        decoration: const BoxDecoration(
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Text(
+                        daysPassed.toString(),
+                        style: GoogleFonts.robotoMono(
                             color: Colors.white,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(45))),
-                        child: Text(
-                          "Meta/Vicio",
-                          style: GoogleFonts.robotoMono(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 25),
-                        ),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 25),
                       ),
-                    ),
+                      Text(
+                        "/",
+                        style: GoogleFonts.robotoMono(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 25),
+                      ),
+                      Text(
+                        _dayController.text,
+                        style: GoogleFonts.robotoMono(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 25),
+                      ),
+                    ]),
                     Text(
-                      selectedOption,
+                      "VOCE CONSEGUE!!!",
                       style: GoogleFonts.robotoMono(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
                           fontSize: 20),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -348,57 +473,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-    );
-  }
-
-  //função para exibir opções de escolhas na tela lateral
-  Future<void> _showOptionsDialog() async {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Escolha uma opção'),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  RadioListTile<String>(
-                    title: const Text('Ficar sem por dias'),
-                    value: 'Ficar sem por dias',
-                    groupValue: selectedOption,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedOption = value!;
-                      });
-                    },
-                  ),
-                  RadioListTile<String>(
-                    title: const Text('Fazer por dias'),
-                    value: 'Fazer por dias',
-                    groupValue: selectedOption,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedOption = value!;
-                      });
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                //setstate para atualizar a homescreen
-                setState(() {});
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 }
