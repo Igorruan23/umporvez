@@ -35,4 +35,9 @@ class DB {
   static Future<int> delete(int id) async {
     return await _database.delete('PROGRESS', where: 'id = ?', whereArgs: [id]);
   }
+
+  static Future<int> update(DBModel updateModel) async {
+    return await _database.update('PROGRESS', updateModel.toMap(),
+        where: 'id= ?', whereArgs: [updateModel.id]);
+  }
 }

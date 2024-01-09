@@ -269,6 +269,24 @@ class _HomePageState extends State<HomePage> {
                                   actions: <Widget>[
                                     ElevatedButton(
                                         onPressed: () async {
+                                          String currentText =
+                                              _textController.text;
+                                          if (currentText.isNotEmpty) {
+                                            String previousText = currentText;
+                                            _textController.clear();
+                                            _textController.text = previousText;
+                                            List<DBModel> registros =
+                                                await DB.getallProgress();
+                                            if (registros.isNotEmpty) {
+                                              DBModel ultimoRegistro =
+                                                  registros.last;
+                                              // Atualizar o modelo com o novo texto
+                                              ultimoRegistro.metaDescription =
+                                                  previousText;
+                                              // Chamar a função de atualização no banco de dados
+                                              await DB.update(ultimoRegistro);
+                                            }
+                                          }
                                           //data atual do inicio da meta
                                           DateTime currentDate = DateTime.now();
                                           String metaDescription =
