@@ -5,6 +5,7 @@ import 'package:umporvez/controller/Progress_Controller.dart';
 import 'package:umporvez/controller/date_Progress_Controller.dart';
 import 'package:umporvez/database/db.dart';
 import 'package:umporvez/view/Motivation_page.dart';
+import 'package:umporvez/controller/notification_mananger.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -38,6 +39,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    _initializeNotificationManager();
     super.initState();
     _initializeDB();
     //carregar a data
@@ -45,6 +47,10 @@ class _HomePageState extends State<HomePage> {
     //controle de inputs
     _dayController = TextEditingController();
     _textController = TextEditingController();
+  }
+
+  Future<void> _initializeNotificationManager() async {
+    await notificationManager.init();
   }
 
 //criada para o banco de dados não inicializar com app e quebrar
@@ -431,6 +437,7 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.grey,
                 ),
                 onTap: () {
+                  notificationManager.showNotification();
                   Navigator.push(
                       context,
                       MaterialPageRoute(
